@@ -1,0 +1,42 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - echo "Compiling the code..."
+    - echo "Compile complete."
+
+unit-test-job:
+  stage: test
+  image: docker.arvancloud.ir/gradle:8.5-jdk17
+  cache:
+    key: gradle-cache
+    paths:
+      - backend/.gradle/
+  script:
+    - echo "Running backend tests..."
+    - cd backend
+    - ./gradlew test --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - backend/build/test-results/
+      - backend/build/reports/
+    expire_in: 1 week
+
+lint-test-job:
+  stage: test
+  script:
+    - echo "Linting code... This will take about 10 seconds."
+    - sleep 10
+    - echo "No lint issues found."
+
+deploy-job:
+  stage: deploy
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."
